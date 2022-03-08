@@ -93,3 +93,4 @@ toc()
 #- Clean environment
 rm(filepile, tmpsheet, i, j, namtmp, sheetstmp, filetmp, file_list, riskdir)
 tend <- Sys.time(); tend - tini
+# Time difference of 27.17682 secs

@@ -139,18 +139,46 @@ allrisk %<>%
   #--- 1 month
   mutate.( last1mon     = ifelse.(yearmon >= last1_val, 1, 0)) %>%
   mutate.( risk1mon     = ifelse.(withrisk == 1 & last1mon == 1, 1, 0)) %>%
-  mutate.( hwrisk1mon   = sum(risk1mon), .by = nif_cif) %>%
+  mutate.( hwrisk1mon   = sum(risk1mon), .by = c(razon_social, nif_cif)) %>%
   #--- 3 month
   mutate.( last3mon     = ifelse.(yearmon >= last3_val, 1, 0)) %>%
   mutate.( risk3mon     = ifelse.(withrisk == 1 & last3mon == 1, 1, 0)) %>%
-  mutate.( hwrisk3mon   = sum(risk3mon), .by = nif_cif) %>%
+  mutate.( hwrisk3mon   = sum(risk3mon), .by = c(razon_social, nif_cif)) %>%
   #--- 6 month
   mutate.( last6mon     = ifelse.(yearmon >= last6_val, 1, 0)) %>%
   mutate.( risk6mon     = ifelse.(withrisk == 1 & last6mon == 1, 1, 0)) %>%
-  mutate.( hwrisk6mon   = sum(risk6mon), .by = nif_cif) %>%
+  mutate.( hwrisk6mon   = sum(risk6mon), .by = c(razon_social, nif_cif)) %>%
+  #--- Synthetic variable paste of the risks.
+  mutate.( riskcomb     = paste(hwrisk1mon, hwrisk3mon, hwrisk6mon, sep = "_")) %>% 
   as.data.table()
 
 
 tend <- Sys.time(); tend - tini
 # Time difference of 30.26061 secs
 
+#---- Calculate customers with different levels of risk
+custrisk <- allrisk %>%
+  select.(razon_social, nif_cif, provincia, hwrisk1mon, hwrisk3mon, hwrisk6mon, riskcomb) %>%
+  arrange.(nif_cif) %>%
+  distinct.() %>%
+  as.data.table()
+
+#---- Summary with how many in risk we have based on "riskcomb" variable.
+custrisk %>%
+  count.(riskcomb, sort = TRUE) %>%
+  mutate.( total = sum(N)) %>%
+  mutate.( perc  = round(N * 100 / total, 2)) %>%
+  as.data.table()
+
+#-- Result
+#    riskcomb     N total  perc
+# 1:    0_0_0 82455 86653 95.16
+# 2:    1_3_6   905 86653  1.04
+# 3:    0_0_1   446 86653  0.51
+# 4:    1_1_1   387 86653  0.45
+# 5:    0_1_4   334 86653  0.39
+# 6:    1_3_4   330 86653  0.38
+# 7:    0_2_5   310 86653  0.36
+# 8:    0_0_2   300 86653  0.35
+# 9:    0_0_3   297 86653  0.34
+# 10:   1_3_5   287 86653  0.33

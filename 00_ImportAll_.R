@@ -92,5 +92,55 @@ toc()
 
 #- Clean environment
 rm(filepile, tmpsheet, i, j, namtmp, sheetstmp, filetmp, file_list, riskdir)
+
 tend <- Sys.time(); tend - tini
 # Time difference of 27.17682 secs
+
+#--- Transform and create new variables realted to "fecha" -----------
+allrisk %<>%
+  mutate.( midatetr =  stri_trans_totitle(midate)) %>%
+  mutate.( mes      = stri_extract_first_words(midatetr)) %>%
+  mutate.( ano      = as.numeric(stri_extract_last_words(midatetr)) ) %>%
+  as.data.table()
+
+allrisk[ , mesnum := fcase(
+  mes == "Enero", 1,
+  mes == "Febrero", 2,
+  mes == "Marzo", 3,
+  mes == "Abril", 4,
+  mes == "Mayo", 5,
+  mes == "Junio", 6,
+  mes == "Julio", 7,
+  mes == "Agosto", 8,
+  mes == "Septiembre", 9,
+  mes == "Octubre", 10,
+  mes == "Noviembre", 11, 
+  mes == "Diciembre", 12
+)
+]
+
+allrisk %<>%
+  mutate.( yearmon = (ano * 100 + mesnum ) ) %>% 
+  mutate.( yearmondat = ym(yearmon ) ) %>%
+  # sort by yearmon I will need later.
+  arrange.(yearmon) %>%
+  as.data.table()
+
+tend <- Sys.time(); tend - tini
+
+#---- New variables related to "importe_concedido" -------
+last1_val <- rev(unique(allrisk$yearmon)) %>% head(., 1) %>% tail(., 1)
+last3_val <- rev(unique(allrisk$yearmon)) %>% head(., 3) %>% tail(., 1)
+last6_val <- rev(unique(allrisk$yearmon)) %>% head(., 6) %>% tail(., 1)
+
+#--- Calculate if the last 1, 3, 6 months customer had "0" in "importe_concedido".
+allrisk %<>%
+  mutate.( withrisk = ifelse.(importe_concedido == 0, 1, 0)) %>%
+  mutate.( last3mon = ifelse.(yearmon >= last3_val, 1, 0)) %>%
+  mutate.( risk3mon = ifelse.(withrisk == 1 & last3mon == 1, sum(withrisk), 0), .by = nif_cif) %>%
+  mutate.( last6mon = ifelse.(yearmon >= last6_val, 1, 0)) %>%
+  mutate.( risk6mon = ifelse.(withrisk == 1 & last6mon == 1, sum(withrisk), 0), .by = nif_cif) %>%
+  as.data.table()
+
+
+tend <- Sys.time(); tend - tini

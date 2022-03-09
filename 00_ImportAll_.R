@@ -182,3 +182,33 @@ custrisk %>%
 # 8:    0_0_2   300 86653  0.35
 # 9:    0_0_3   297 86653  0.34
 # 10:   1_3_5   287 86653  0.33
+
+#---- Which are the customers with the pattern "1_3_6" -> High risk last 6 months.
+empresasrisk <- custrisk %>%
+  filter.( riskcomb == "1_3_6") %>%
+  select.( razon_social, nif_cif, provincia, riskcomb) %>%
+  mutate.( hwprovin = n.(), .by = provincia) %>%
+  mutate.( total = n.()) %>%
+  mutate.( perprov = round(hwprovin * 100 / total, 2)) %>%
+  arrange.( -perprov) %>%
+  as.data.table()
+empresasrisk
+
+#--- Save file ------
+fwrite(
+  empresasrisk,
+  file = "./output/EmpresasRisk_1_3_6.csv",
+  sep = "|", 
+  bom = TRUE,
+  encoding = "UTF-8",
+  dec = ","
+)
+
+empresasrisk %>%
+  select.(provincia, perprov) %>%
+  distinct.() %>%
+  as.data.table()
+
+#----- END OF FILE --------
+tend <- Sys.time(); tend - tini
+# Time difference of 30.4016 secs

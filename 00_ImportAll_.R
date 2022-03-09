@@ -135,12 +135,22 @@ last6_val <- rev(unique(allrisk$yearmon)) %>% head(., 6) %>% tail(., 1)
 
 #--- Calculate if the last 1, 3, 6 months customer had "0" in "importe_concedido".
 allrisk %<>%
-  mutate.( withrisk = ifelse.(importe_concedido == 0, 1, 0)) %>%
-  mutate.( last3mon = ifelse.(yearmon >= last3_val, 1, 0)) %>%
-  mutate.( risk3mon = ifelse.(withrisk == 1 & last3mon == 1, sum(withrisk), 0), .by = nif_cif) %>%
-  mutate.( last6mon = ifelse.(yearmon >= last6_val, 1, 0)) %>%
-  mutate.( risk6mon = ifelse.(withrisk == 1 & last6mon == 1, sum(withrisk), 0), .by = nif_cif) %>%
+  mutate.( withrisk     = ifelse.(importe_concedido == 0, 1, 0)) %>%
+  #--- 1 month
+  mutate.( last1mon     = ifelse.(yearmon >= last1_val, 1, 0)) %>%
+  mutate.( risk1mon     = ifelse.(withrisk == 1 & last1mon == 1, 1, 0)) %>%
+  mutate.( hwrisk1mon   = sum(risk1mon), .by = nif_cif) %>%
+  #--- 3 month
+  mutate.( last3mon     = ifelse.(yearmon >= last3_val, 1, 0)) %>%
+  mutate.( risk3mon     = ifelse.(withrisk == 1 & last3mon == 1, 1, 0)) %>%
+  mutate.( hwrisk3mon   = sum(risk3mon), .by = nif_cif) %>%
+  #--- 6 month
+  mutate.( last6mon     = ifelse.(yearmon >= last6_val, 1, 0)) %>%
+  mutate.( risk6mon     = ifelse.(withrisk == 1 & last6mon == 1, 1, 0)) %>%
+  mutate.( hwrisk6mon   = sum(risk6mon), .by = nif_cif) %>%
   as.data.table()
 
 
 tend <- Sys.time(); tend - tini
+# Time difference of 30.26061 secs
+

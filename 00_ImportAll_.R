@@ -209,6 +209,28 @@ empresasrisk %>%
   distinct.() %>%
   as.data.table()
 
+#                     provincia perprov
+# 1:                     MADRID   18.01
+# 2:                  BARCELONA   12.60
+# 3:        COMUNIDAD DE MADRID    4.97
+# 4:                   CATALUÑA    4.64
+# 5:                   VALENCIA    3.87
+# 6:                   ZARAGOZA    2.98
+# 7:                    SEVILLA    2.98
+# 8:                    VIZCAYA    2.87
+# 9:                   BALEARES    2.43
+# 10:                  TARRAGONA    2.32
+# 11:                     MALAGA    2.32
+# 12:                  CANTABRIA    2.21
+# 13:                 LAS PALMAS    1.99
+# 14:                      ALAVA    1.88
+# 15:                 PAÍS VASCO    1.88
+# 16:                   ALICANTE    1.77
+# 17:                     GIRONA    1.66
+# 18:                   TENERIFE    1.55
+# 19:                  ANDALUCÍA    1.44
+# 20:                      CADIZ    1.33
+
 #----- END OF FILE --------
 tend <- Sys.time(); tend - tini
 # Time difference of 30.4016 secs
